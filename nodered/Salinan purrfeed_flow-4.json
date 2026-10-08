@@ -1,0 +1,681 @@
+[
+  {
+    "id": "tab_purrfeed",
+    "type": "tab",
+    "label": "PurrFeed",
+    "disabled": false,
+    "info": "Smart Cat Feeder - Node-RED Flow"
+  },
+  {
+    "id": "mqtt_broker_cfg",
+    "type": "mqtt-broker",
+    "name": "EMQX Public Broker",
+    "broker": "broker.emqx.io",
+    "port": "1883",
+    "clientid": "nodered_catfeeder_001",
+    "usetls": false,
+    "protocolVersion": "4",
+    "keepalive": "60",
+    "cleansession": true,
+    "autoConnect": true,
+    "birthTopic": "",
+    "birthQos": "0",
+    "birthPayload": "",
+    "closeTopic": "",
+    "closePayload": "",
+    "willTopic": "",
+    "willQos": "0",
+    "willPayload": ""
+  },
+  {
+    "id": "ui_tab_purrfeed",
+    "type": "ui_tab",
+    "name": "PurrFeed Dashboard",
+    "icon": "dashboard",
+    "order": 1,
+    "disabled": false,
+    "hidden": false
+  },
+  {
+    "id": "ui_group_monitor",
+    "type": "ui_group",
+    "name": "Monitor",
+    "tab": "ui_tab_purrfeed",
+    "order": 1,
+    "disp": true,
+    "width": "6"
+  },
+  {
+    "id": "ui_group_control",
+    "type": "ui_group",
+    "name": "Kontrol Makan",
+    "tab": "ui_tab_purrfeed",
+    "order": 2,
+    "disp": true,
+    "width": "6"
+  },
+  {
+    "id": "ui_group_jadwal",
+    "type": "ui_group",
+    "name": "Jadwal Otomatis",
+    "tab": "ui_tab_purrfeed",
+    "order": 3,
+    "disp": true,
+    "width": "6"
+  },
+  {
+    "id": "mqtt_in_berat",
+    "type": "mqtt in",
+    "z": "tab_purrfeed",
+    "name": "Terima Berat",
+    "topic": "purrfeed/berat",
+    "qos": "0",
+    "datatype": "utf8",
+    "broker": "mqtt_broker_cfg",
+    "x": 110,
+    "y": 80,
+    "wires": [
+      [
+        "ui_gauge_berat",
+        "ui_chart_berat"
+      ]
+    ]
+  },
+  {
+    "id": "ui_gauge_berat",
+    "type": "ui_gauge",
+    "z": "tab_purrfeed",
+    "name": "Gauge Berat",
+    "group": "ui_group_monitor",
+    "order": 1,
+    "width": 0,
+    "height": 0,
+    "gtype": "gage",
+    "title": "Berat Makanan",
+    "label": "gram",
+    "format": "{{value}}",
+    "min": 0,
+    "max": 200,
+    "colors": [
+      "#00b500",
+      "#e6e600",
+      "#ca3838"
+    ],
+    "seg1": 50,
+    "seg2": 150,
+    "x": 320,
+    "y": 60,
+    "wires": []
+  },
+  {
+    "id": "ui_chart_berat",
+    "type": "ui_chart",
+    "z": "tab_purrfeed",
+    "name": "Grafik Berat",
+    "group": "ui_group_monitor",
+    "order": 2,
+    "width": 0,
+    "height": 4,
+    "label": "Berat Makanan (gram)",
+    "chartType": "line",
+    "legend": "false",
+    "xformat": "HH:mm:ss",
+    "interpolate": "linear",
+    "nodata": "Menunggu data...",
+    "dot": false,
+    "ymin": "0",
+    "ymax": "200",
+    "removeOlder": 1,
+    "removeOlderPoints": "",
+    "removeOlderUnit": "3600",
+    "cutout": 0,
+    "useOneColor": false,
+    "colors": [
+      "#1f77b4"
+    ],
+    "x": 320,
+    "y": 100,
+    "wires": []
+  },
+  {
+    "id": "mqtt_in_status",
+    "type": "mqtt in",
+    "z": "tab_purrfeed",
+    "name": "Terima Status Kucing",
+    "topic": "purrfeed/status",
+    "qos": "0",
+    "datatype": "utf8",
+    "broker": "mqtt_broker_cfg",
+    "x": 110,
+    "y": 200,
+    "wires": [
+      [
+        "ui_text_status",
+        "fn_simpan_status_ir",
+        "fn_chart_ir"
+      ]
+    ]
+  },
+  {
+    "id": "ui_text_status",
+    "type": "ui_text",
+    "z": "tab_purrfeed",
+    "name": "Status Kucing",
+    "group": "ui_group_monitor",
+    "order": 3,
+    "width": 0,
+    "height": 0,
+    "label": "Status Kucing",
+    "format": "{{msg.payload}}",
+    "layout": "row-spread",
+    "x": 320,
+    "y": 200,
+    "wires": []
+  },
+  {
+    "id": "mqtt_in_log",
+    "type": "mqtt in",
+    "z": "tab_purrfeed",
+    "name": "Terima Log",
+    "topic": "purrfeed/log",
+    "qos": "0",
+    "datatype": "utf8",
+    "broker": "mqtt_broker_cfg",
+    "x": 110,
+    "y": 280,
+    "wires": [
+      [
+        "ui_text_log",
+        "debug_log"
+      ]
+    ]
+  },
+  {
+    "id": "ui_text_log",
+    "type": "ui_text",
+    "z": "tab_purrfeed",
+    "name": "Log Kejadian",
+    "group": "ui_group_monitor",
+    "order": 4,
+    "width": 0,
+    "height": 0,
+    "label": "Log Terakhir",
+    "format": "{{msg.payload}}",
+    "layout": "row-spread",
+    "x": 320,
+    "y": 260,
+    "wires": []
+  },
+  {
+    "id": "debug_log",
+    "type": "debug",
+    "z": "tab_purrfeed",
+    "name": "Debug Log",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "x": 320,
+    "y": 300,
+    "wires": []
+  },
+  {
+    "id": "ui_button_feed",
+    "type": "ui_button",
+    "z": "tab_purrfeed",
+    "name": "Tombol Beri Makan",
+    "group": "ui_group_control",
+    "order": 1,
+    "width": 0,
+    "height": 0,
+    "passthru": false,
+    "label": "\ud83c\udf7d Beri Makan Sekarang",
+    "tooltip": "Klik untuk memberi makan manual",
+    "color": "",
+    "bgcolor": "#e67e22",
+    "x": 120,
+    "y": 420,
+    "wires": [
+      [
+        "fn_feed_payload"
+      ]
+    ]
+  },
+  {
+    "id": "fn_feed_payload",
+    "type": "function",
+    "z": "tab_purrfeed",
+    "name": "Set Feed = 1",
+    "func": "msg.payload = '1';\nreturn msg;",
+    "outputs": 1,
+    "x": 330,
+    "y": 420,
+    "wires": [
+      [
+        "mqtt_out_feed"
+      ]
+    ]
+  },
+  {
+    "id": "ui_button_stop",
+    "type": "ui_button",
+    "z": "tab_purrfeed",
+    "name": "Tombol Force Stop",
+    "group": "ui_group_control",
+    "order": 2,
+    "width": 0,
+    "height": 0,
+    "passthru": false,
+    "label": "\ud83d\uded1 Force Stop",
+    "tooltip": "Hentikan paksa pemberian makan",
+    "color": "",
+    "bgcolor": "#c0392b",
+    "x": 120,
+    "y": 500,
+    "wires": [
+      [
+        "fn_stop_payload"
+      ]
+    ]
+  },
+  {
+    "id": "fn_stop_payload",
+    "type": "function",
+    "z": "tab_purrfeed",
+    "name": "Set Feed = 0",
+    "func": "msg.payload = '0';\nreturn msg;",
+    "outputs": 1,
+    "x": 330,
+    "y": 500,
+    "wires": [
+      [
+        "mqtt_out_feed"
+      ]
+    ]
+  },
+  {
+    "id": "mqtt_out_feed",
+    "type": "mqtt out",
+    "z": "tab_purrfeed",
+    "name": "Kirim Perintah Feed",
+    "topic": "purrfeed/feed",
+    "qos": "0",
+    "retain": "",
+    "broker": "mqtt_broker_cfg",
+    "x": 540,
+    "y": 460,
+    "wires": []
+  },
+  {
+    "id": "ui_numeric_target",
+    "type": "ui_numeric",
+    "z": "tab_purrfeed",
+    "name": "Target Berat",
+    "group": "ui_group_control",
+    "order": 3,
+    "width": 0,
+    "height": 0,
+    "passthru": false,
+    "label": "Target Berat (gram)",
+    "tooltip": "",
+    "format": "{{value}}",
+    "min": 10,
+    "max": 200,
+    "step": 5,
+    "wrap": false,
+    "x": 120,
+    "y": 580,
+    "wires": [
+      [
+        "mqtt_out_target"
+      ]
+    ]
+  },
+  {
+    "id": "mqtt_out_target",
+    "type": "mqtt out",
+    "z": "tab_purrfeed",
+    "name": "Kirim Target",
+    "topic": "purrfeed/target",
+    "qos": "0",
+    "retain": "true",
+    "broker": "mqtt_broker_cfg",
+    "x": 340,
+    "y": 580,
+    "wires": []
+  },
+  {
+    "id": "ui_numeric_jam",
+    "type": "ui_numeric",
+    "z": "tab_purrfeed",
+    "name": "Input Jam",
+    "group": "ui_group_jadwal",
+    "order": 1,
+    "width": 0,
+    "height": 0,
+    "passthru": false,
+    "label": "Jam (0-23)",
+    "format": "{{value}}",
+    "min": 0,
+    "max": 23,
+    "step": 1,
+    "wrap": false,
+    "x": 110,
+    "y": 700,
+    "wires": [
+      [
+        "fn_simpan_draft_jam"
+      ]
+    ]
+  },
+  {
+    "id": "fn_simpan_draft_jam",
+    "type": "function",
+    "z": "tab_purrfeed",
+    "name": "Simpan Draft Jam",
+    "func": "flow.set('draft_jam', parseInt(msg.payload));\nreturn null;",
+    "outputs": 1,
+    "x": 320,
+    "y": 700,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "ui_numeric_menit",
+    "type": "ui_numeric",
+    "z": "tab_purrfeed",
+    "name": "Input Menit",
+    "group": "ui_group_jadwal",
+    "order": 2,
+    "width": 0,
+    "height": 0,
+    "passthru": false,
+    "label": "Menit (0-59)",
+    "format": "{{value}}",
+    "min": 0,
+    "max": 59,
+    "step": 1,
+    "wrap": false,
+    "x": 110,
+    "y": 760,
+    "wires": [
+      [
+        "fn_simpan_draft_menit"
+      ]
+    ]
+  },
+  {
+    "id": "fn_simpan_draft_menit",
+    "type": "function",
+    "z": "tab_purrfeed",
+    "name": "Simpan Draft Menit",
+    "func": "flow.set('draft_menit', parseInt(msg.payload));\nreturn null;",
+    "outputs": 1,
+    "x": 320,
+    "y": 760,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "ui_button_tambah_jadwal",
+    "type": "ui_button",
+    "z": "tab_purrfeed",
+    "name": "Tombol Tambah Jadwal",
+    "group": "ui_group_jadwal",
+    "order": 3,
+    "width": 0,
+    "height": 0,
+    "passthru": false,
+    "label": "+ Tambah Jadwal",
+    "bgcolor": "#27ae60",
+    "x": 110,
+    "y": 820,
+    "wires": [
+      [
+        "fn_tambah_jadwal"
+      ]
+    ]
+  },
+  {
+    "id": "fn_tambah_jadwal",
+    "type": "function",
+    "z": "tab_purrfeed",
+    "name": "Tambah Jadwal ke Array",
+    "func": "var pad = function(n){ return n < 10 ? '0'+n : ''+n; };\nvar jam   = flow.get('draft_jam');\nvar menit = flow.get('draft_menit');\nif (jam === undefined || jam === null) {\n    node.status({fill:'red',shape:'dot',text:'Jam belum diisi!'});\n    return null;\n}\nif (menit === undefined || menit === null) {\n    node.status({fill:'red',shape:'dot',text:'Menit belum diisi!'});\n    return null;\n}\nvar jadwalList = flow.get('jadwal_list') || [];\nvar duplikat = jadwalList.some(function(j){ return j.jam===jam && j.menit===menit; });\nif (duplikat) {\n    node.status({fill:'yellow',shape:'dot',text:'Jadwal '+pad(jam)+':'+pad(menit)+' sudah ada!'});\n    return null;\n}\njadwalList.push({jam:jam, menit:menit});\njadwalList.sort(function(a,b){ return (a.jam*60+a.menit)-(b.jam*60+b.menit); });\nflow.set('jadwal_list', jadwalList);\nflow.set('last_fed_menit', -1);\nvar listStr = jadwalList.map(function(j){ return pad(j.jam)+':'+pad(j.menit); }).join(' | ');\nnode.status({fill:'green',shape:'dot',text:'Ditambah. Total: '+jadwalList.length});\nreturn [{payload: listStr}];",
+    "outputs": 1,
+    "x": 340,
+    "y": 820,
+    "wires": [
+      [
+        "ui_text_daftar_jadwal"
+      ]
+    ]
+  },
+  {
+    "id": "ui_button_hapus_jadwal",
+    "type": "ui_button",
+    "z": "tab_purrfeed",
+    "name": "Tombol Hapus Jadwal",
+    "group": "ui_group_jadwal",
+    "order": 4,
+    "width": 0,
+    "height": 0,
+    "passthru": false,
+    "label": "Hapus Jadwal Ini",
+    "bgcolor": "#c0392b",
+    "x": 110,
+    "y": 880,
+    "wires": [
+      [
+        "fn_hapus_jadwal"
+      ]
+    ]
+  },
+  {
+    "id": "fn_hapus_jadwal",
+    "type": "function",
+    "z": "tab_purrfeed",
+    "name": "Hapus Jadwal dari Array",
+    "func": "var pad = function(n){ return n < 10 ? '0'+n : ''+n; };\nvar jam   = flow.get('draft_jam');\nvar menit = flow.get('draft_menit');\nvar jadwalList = flow.get('jadwal_list') || [];\nvar before = jadwalList.length;\njadwalList = jadwalList.filter(function(j){ return !(j.jam===jam && j.menit===menit); });\nflow.set('jadwal_list', jadwalList);\nif (jadwalList.length === before) {\n    node.status({fill:'yellow',shape:'dot',text:'Jadwal '+pad(jam)+':'+pad(menit)+' tidak ditemukan'});\n} else {\n    node.status({fill:'green',shape:'dot',text:'Dihapus. Sisa: '+jadwalList.length});\n}\nvar listStr = jadwalList.length > 0\n    ? jadwalList.map(function(j){ return pad(j.jam)+':'+pad(j.menit); }).join(' | ')\n    : '(kosong)';\nreturn [{payload: listStr}];",
+    "outputs": 1,
+    "x": 340,
+    "y": 880,
+    "wires": [
+      [
+        "ui_text_daftar_jadwal"
+      ]
+    ]
+  },
+  {
+    "id": "ui_text_daftar_jadwal",
+    "type": "ui_text",
+    "z": "tab_purrfeed",
+    "name": "Daftar Jadwal",
+    "group": "ui_group_jadwal",
+    "order": 5,
+    "width": 0,
+    "height": 0,
+    "label": "Jadwal Aktif",
+    "format": "{{msg.payload}}",
+    "layout": "row-spread",
+    "x": 570,
+    "y": 850,
+    "wires": []
+  },
+  {
+    "id": "inject_jadwal",
+    "type": "inject",
+    "z": "tab_purrfeed",
+    "name": "Cek Jadwal (tiap 10 detik)",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "10",
+    "crontab": "",
+    "once": true,
+    "onceDelay": 0.1,
+    "payload": "",
+    "payloadType": "date",
+    "x": 110,
+    "y": 960,
+    "wires": [
+      [
+        "fn_cek_jadwal"
+      ]
+    ]
+  },
+  {
+    "id": "fn_cek_jadwal",
+    "type": "function",
+    "z": "tab_purrfeed",
+    "name": "Cek Waktu Jadwal",
+    "func": "var pad = function(n){ return n < 10 ? '0'+n : ''+n; };\nvar jadwalList = flow.get('jadwal_list') || [];\nvar now = new Date();\nvar nowJam   = now.getHours();\nvar nowMenit = now.getMinutes();\nvar nowStr   = pad(nowJam)+':'+pad(nowMenit)+':'+pad(now.getSeconds());\nvar menitKey = nowJam * 60 + nowMenit;\nvar lastFed  = flow.get('last_fed_menit');\n\nif (jadwalList.length === 0) {\n    var logMsg = '['+nowStr+'] Belum ada jadwal.';\n    node.warn(logMsg);\n    return [null, {payload: logMsg}, null];\n}\n\nvar listStr = jadwalList.map(function(j){ return pad(j.jam)+':'+pad(j.menit); }).join(' | ');\nvar match = jadwalList.some(function(j){ return j.jam===nowJam && j.menit===nowMenit; });\n\nif (!match) {\n    var logWait = '['+nowStr+'] Menunggu: '+listStr;\n    node.warn(logWait);\n    return [null, {payload: logWait}, null];\n}\n\n// Sudah waktunya \u2014 tapi sudah dijalankan di menit ini?\nif (lastFed === menitKey) {\n    var logSkip = '['+nowStr+'] Jadwal '+pad(nowJam)+':'+pad(nowMenit)+' sudah dijalankan, skip.';\n    node.warn(logSkip);\n    return [null, {payload: logSkip}, null];\n}\n\n// Sudah waktunya, belum dijalankan \u2014 cek IR\nvar irStatus = flow.get('ir_status_terakhir'); // true = Cat Detected\nif (!irStatus) {\n    var logTunggu = '['+nowStr+'] Jadwal '+pad(nowJam)+':'+pad(nowMenit)+' aktif, menunggu kucing terdeteksi...';\n    node.warn(logTunggu);\n    return [null, {payload: logTunggu}, null];\n}\n\n// IR aktif DAN waktunya cocok DAN belum dijalankan di menit ini \u2192 feed!\nflow.set('last_fed_menit', menitKey);\nvar logTrigger = '['+nowStr+'] JADWAL TERPICU + kucing terdeteksi! '+pad(nowJam)+':'+pad(nowMenit);\nnode.warn(logTrigger);\n\n// Output ke chart jadwal juga\nvar chartMsg = { payload: 1, topic: 'jadwal_terpicu' };\nreturn [{payload:'1'}, {payload: logTrigger}, chartMsg];\n",
+    "outputs": 3,
+    "x": 320,
+    "y": 960,
+    "wires": [
+      [
+        "mqtt_out_feed"
+      ],
+      [
+        "debug_jadwal",
+        "ui_text_jadwal_log"
+      ],
+      [
+        "ui_chart_jadwal"
+      ]
+    ]
+  },
+  {
+    "id": "debug_jadwal",
+    "type": "debug",
+    "z": "tab_purrfeed",
+    "name": "Debug Jadwal",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "x": 560,
+    "y": 940,
+    "wires": []
+  },
+  {
+    "id": "ui_text_jadwal_log",
+    "type": "ui_text",
+    "z": "tab_purrfeed",
+    "name": "Log Jadwal",
+    "group": "ui_group_jadwal",
+    "order": 6,
+    "width": 0,
+    "height": 0,
+    "label": "Status Jadwal",
+    "format": "{{msg.payload}}",
+    "layout": "row-spread",
+    "x": 560,
+    "y": 980,
+    "wires": []
+  },
+  {
+    "id": "ui_group_riwayat",
+    "type": "ui_group",
+    "name": "Riwayat & Grafik",
+    "tab": "ui_tab_purrfeed",
+    "order": 4,
+    "disp": true,
+    "width": "6"
+  },
+  {
+    "id": "fn_simpan_status_ir",
+    "type": "function",
+    "z": "tab_purrfeed",
+    "name": "Simpan Status IR",
+    "func": "var detected = (msg.payload === 'Cat Detected');\nflow.set('ir_status_terakhir', detected);\nreturn null;",
+    "outputs": 1,
+    "x": 330,
+    "y": 200,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "fn_chart_ir",
+    "type": "function",
+    "z": "tab_purrfeed",
+    "name": "Format IR utk Chart",
+    "func": "msg.payload = (msg.payload === 'Cat Detected') ? 1 : 0;\nreturn msg;",
+    "outputs": 1,
+    "x": 330,
+    "y": 240,
+    "wires": [
+      [
+        "ui_chart_ir"
+      ]
+    ]
+  },
+  {
+    "id": "ui_chart_ir",
+    "type": "ui_chart",
+    "z": "tab_purrfeed",
+    "name": "Grafik Deteksi Kucing",
+    "group": "ui_group_riwayat",
+    "order": 1,
+    "width": 0,
+    "height": 4,
+    "label": "Deteksi Kucing (IR)",
+    "chartType": "line",
+    "legend": "false",
+    "xformat": "HH:mm:ss",
+    "interpolate": "step-after",
+    "nodata": "Menunggu data...",
+    "dot": true,
+    "ymin": "0",
+    "ymax": "1",
+    "removeOlder": 1,
+    "removeOlderPoints": "",
+    "removeOlderUnit": "3600",
+    "cutout": 0,
+    "useOneColor": false,
+    "colors": [
+      "#e67e22"
+    ],
+    "x": 560,
+    "y": 240,
+    "wires": []
+  },
+  {
+    "id": "ui_chart_jadwal",
+    "type": "ui_chart",
+    "z": "tab_purrfeed",
+    "name": "Grafik Jadwal Terpicu",
+    "group": "ui_group_riwayat",
+    "order": 2,
+    "width": 0,
+    "height": 4,
+    "label": "Jadwal Pemberian Makan Terpicu",
+    "chartType": "bar",
+    "legend": "false",
+    "xformat": "HH:mm:ss",
+    "interpolate": "linear",
+    "nodata": "Belum ada jadwal terpicu...",
+    "dot": true,
+    "ymin": "0",
+    "ymax": "1",
+    "removeOlder": 1,
+    "removeOlderPoints": "",
+    "removeOlderUnit": "86400",
+    "cutout": 0,
+    "useOneColor": false,
+    "colors": [
+      "#27ae60"
+    ],
+    "x": 600,
+    "y": 1000,
+    "wires": []
+  }
+]
